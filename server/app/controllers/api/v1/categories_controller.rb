@@ -1,6 +1,6 @@
 module Api
     module V1
-        class Api::V1::categoriesController < ApplicationController
+        class Api::V1::CategoriesController < ApplicationController
             before_action :set_category, only: %i[ show update destroy ]
         
             # GET /categories
