@@ -6,16 +6,16 @@
                 <h3>Adicionar unidade de medida</h3>
                 <input type="text" v-model="newUnitName" placeholder="Nome ex: Quilo" maxlength="25"/>
                 <input type="text" v-model="newUnitAbbreviation" placeholder="Abreviação ex: KG" maxlength="5"/>
-                <button @click="addUnit">Adicionar</button>
-                <button @click="showAddUnitModal = false">Cancelar</button>
+                <button @click.prevent="addUnit">Adicionar</button>
+                <button @click.prevent="showAddUnitModal = false">Cancelar</button>
             </div>
         </div>
         <div class="modal-overlay" v-if="showAddCategoryModal">
             <div class="modal-content">
                 <h3>Criar Categoria</h3>
-                <input type="text" v-model="newUnitName" placeholder="Nome ex: Praia" maxlength="25"/>
-                <button @click="addCategory">Adicionar</button>
-                <button @click="showAddCategoryModal = false">Cancelar</button>
+                <input type="text" v-model="newCategoryName" placeholder="Nome ex: Praia" maxlength="25"/>
+                <button @click.prevent="addCategory">Adicionar</button>
+                <button @click.prevent="showAddCategoryModal = false">Cancelar</button>
             </div>
         </div>
 
@@ -25,9 +25,13 @@
             <span v-if="errors.name" class="error">{{ errors.name[0] }}</span>
         </div>
         <div class="item-container">
-            <label for="image">imagem:</label> 
-            <input placeholder="Link da imagem" v-model="image" v-bind:class="{ 'is-invalid': errors.image }" type="text" id="image"> 
-            <span v-if="errors.image" class="error">{{ errors.image[0] }}</span>
+          imagem do produto
+          <label for="image" class="image-label">
+              <img v-if="image" :src="image" alt="Imagem do produto" />
+              <img v-else src="https://via.placeholder.com/100" alt="Imagem do produto" />
+              <input  v-bind:class="{ 'is-invalid': errors.image }" type="file" id="image" accept="image/*" @change="onFileChange">
+          </label> 
+          <span v-if="errors.image" class="error">{{ errors.image[0] }}</span>
         </div>
         <div class="item-container category-container">
 
@@ -88,6 +92,29 @@
 
 <style scoped>  
 
+
+input[type="file"] {
+    display: none;
+}
+
+.image-label {
+    cursor: pointer;
+    border: 1px solid #ccc;
+    display: inline-block;
+    cursor: pointer;
+    transition: all 0.5s ease-in-out;
+}
+
+.image-label img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+}
+
+.image-label:hover {
+    background-color: #eee;
+    transform: scale(1.01);
+}
 .featured {
     width: 1.5em;
     height: 1.5em;
@@ -182,7 +209,7 @@ label {
     justify-content: center;
     align-items: center;
     width: 50em;
-    height: 36em;
+    height: 40em;
     padding: 1em;
     padding-bottom: 10em;
     margin-top: 5em;
@@ -190,7 +217,7 @@ label {
     margin-left: 30em;
     color: #182d4d;
     background-color: #ffffff;
-    border: 2px solid #182d4d;
+    border: 3px solid #182d4d;
     border-radius: 10px;
     box-sizing: border-box;
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
@@ -338,6 +365,16 @@ export default {
     this.fetchCategories();
   },
   methods: {
+    onFileChange(e) {
+      let input = e.target;
+      if(input.files && input.files[0]) {
+        let reader = new FileReader();
+        reader.onload = (e) => {
+          this.image = e.target.result;
+        }
+        reader.readAsDataURL(input.files[0]);
+      }
+    },
     fetchUnits() {
       axios
         .get('http://localhost:3000/api/v1/measurement_units')
@@ -397,9 +434,9 @@ export default {
       if (this.name.length > 25 || this.name.length < 3) {
         this.errors.name = ['Nome do produto deve ter entre 3 e 25 caracteres']
       }
-      if (!this.image) {
+      /*if (!this.image) {
         this.errors.image = ['imagem do produto não pode ficar em branco']
-      }
+      }*/
       if (!this.description) {
         this.errors.description = ['Descrição do produto não pode ficar em branco']
       }
