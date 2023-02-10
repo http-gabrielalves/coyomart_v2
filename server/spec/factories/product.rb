@@ -3,7 +3,7 @@ FactoryBot.define do
         name { Faker::Lorem.word }
         image { Faker::Lorem.word }
         description { Faker::Lorem.word }
-        category { Faker::Lorem.word }
+        category { Faker::Lorem.number }
         unit { Faker::Lorem.word }
         stocked { Faker::Number.number(10) }
         price { Faker::Number.decimal(2) }

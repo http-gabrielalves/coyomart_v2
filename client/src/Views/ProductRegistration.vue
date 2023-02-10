@@ -10,6 +10,14 @@
                 <button @click="showAddUnitModal = false">Cancelar</button>
             </div>
         </div>
+        <div class="modal-overlay" v-if="showAddCategoryModal">
+            <div class="modal-content">
+                <h3>Criar Categoria</h3>
+                <input type="text" v-model="newUnitName" placeholder="Nome ex: Praia" maxlength="25"/>
+                <button @click="addCategory">Adicionar</button>
+                <button @click="showAddCategoryModal = false">Cancelar</button>
+            </div>
+        </div>
 
         <div class="item-container">
             <label for="name">Nome do produto:</label>
@@ -27,7 +35,7 @@
             <select v-model="category" v-bind:class="{ 'is-invalid': errors.category }" type="text" id="category">
             <option v-for="category in categories" :key="category.id" :value="category">{{category.name}}</option>
             </select>
-            <button @click.prevent="showAddUnitModal = true">Criar</button>
+            <button @click.prevent="showAddCategoryModal = true">Criar</button>
             <span v-if="errors.category" class="error">{{ errors.category[0] }}</span>
         </div>
         <div class="item-container unit-container">
@@ -308,7 +316,9 @@ export default {
     return {
       selectedUnit: null,
       units: [],
+      categories: [],
       showAddUnitModal: false,
+      showAddCategoryModal: false,
       newUnitAbbreviation: '',
       name: '',
       image: '',
@@ -325,6 +335,7 @@ export default {
   },
   mounted() {
     this.fetchUnits();
+    this.fetchCategories();
   },
   methods: {
     fetchUnits() {
@@ -332,6 +343,30 @@ export default {
         .get('http://localhost:3000/api/v1/measurement_units')
         .then(response => {
           this.units = response.data;
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    },
+    fetchCategories() {
+      axios
+        .get('http://localhost:3000/api/v1/categories')
+        .then(response => {
+          this.categories = response.data;
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    },
+    addCategory() {
+      axios
+        .post('http://localhost:3000/api/v1/categories', {
+          name: this.newCategoryName
+        })
+        .then(response => {
+          this.categories.push(response.data);
+          this.selectedCategory = response.data;
+          this.showAddCategoryModal = false;
         })
         .catch(error => {
           console.error(error);
@@ -358,6 +393,9 @@ export default {
       // Validate input fields
       if (!this.name) {
         this.errors.name = ['Nome do produto não pode ficar em branco']
+      }
+      if (this.name.length > 25 || this.name.length < 3) {
+        this.errors.name = ['Nome do produto deve ter entre 3 e 25 caracteres']
       }
       if (!this.image) {
         this.errors.image = ['imagem do produto não pode ficar em branco']
@@ -387,7 +425,7 @@ export default {
           name: this.name,
           image: this.image,
           description: this.description,
-          category: this.category,
+          category_id: this.category.id,
           unit: this.selectedUnit.abbreviation,
           measurement_unit_id: this.selectedUnit.id,
           stocked: this.stocked,

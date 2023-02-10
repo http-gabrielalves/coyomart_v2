@@ -5,6 +5,7 @@ Rails.application.routes.draw do
       resources :measurement_units
       resources :users
       resources :products 
+      resources :categories
       post '/check_email', to: 'users#check_email'
     end
   end
