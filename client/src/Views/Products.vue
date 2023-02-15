@@ -32,7 +32,7 @@
               <td>{{ product.category.name }}</td>
               <td>{{ product.unit}}</td>
               <td>{{ product.stocked }}</td>
-                <td>{{ product.price }}</td>
+                <td> R${{ product.price }}</td>
               <td>
                 <button @click="deleteproduct(product.id)">Delete</button>
               </td>
@@ -45,6 +45,12 @@
   
   <style scoped>
   
+  td {
+    max-width: 100px;
+ overflow: hidden;
+ text-overflow: ellipsis;
+ white-space: nowrap;
+  }
   .container {
     position: relative;
     border-radius: 20px;

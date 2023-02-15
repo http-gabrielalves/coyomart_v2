@@ -36,10 +36,10 @@
               <img :src="product.image" alt="Product image" width="50" />
             </td>
             <td>{{ product.name }}</td>
-            <td>{{ product.category }}</td>
+            <td>{{ product.category.name }}</td>
             <td>{{ product.unit }}</td>
             <td>{{ product.stocked }}</td>
-            <td>{{ product.value }}</td>
+            <td>R${{ product.price }}</td>
           </tr>
         </tbody>
       </table>

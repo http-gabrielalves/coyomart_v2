@@ -1,121 +1,97 @@
 <template>
-    <form class="form-container">
+  <form class="form-container">
 
-      <div class="modal-overlay" v-if="showAddUnitModal">
-            <div class="modal-content">
-                <h3>Adicionar unidade de medida</h3>
-                <input type="text" v-model="newUnitName" placeholder="Nome ex: Quilo" maxlength="25"/>
-                <input type="text" v-model="newUnitAbbreviation" placeholder="Abreviação ex: KG" maxlength="5"/>
-                <button @click.prevent="addUnit">Adicionar</button>
-                <button @click.prevent="showAddUnitModal = false">Cancelar</button>
-            </div>
-        </div>
-        <div class="modal-overlay" v-if="showAddCategoryModal">
-            <div class="modal-content">
-                <h3>Criar Categoria</h3>
-                <input type="text" v-model="newCategoryName" placeholder="Nome ex: Praia" maxlength="25"/>
-                <button @click.prevent="addCategory">Adicionar</button>
-                <button @click.prevent="showAddCategoryModal = false">Cancelar</button>
-            </div>
-        </div>
+    <div class="modal-overlay" v-if="showAddUnitModal">
+      <div class="modal-content">
+        <h3>Adicionar unidade de medida</h3>
+        <input type="text" v-model="newUnitName" placeholder="Nome ex: Quilo" maxlength="25" />
+        <input type="text" v-model="newUnitAbbreviation" placeholder="Abreviação ex: KG" maxlength="5" />
+        <button @click.prevent="addUnit">Adicionar</button>
+        <button @click.prevent="showAddUnitModal = false">Cancelar</button>
+      </div>
+    </div>
+    <div class="modal-overlay" v-if="showAddCategoryModal">
+      <div class="modal-content">
+        <h3>Criar Categoria</h3>
+        <input type="text" v-model="newCategoryName" placeholder="Nome ex: Praia" maxlength="25" />
+        <button @click.prevent="addCategory">Adicionar</button>
+        <button @click.prevent="showAddCategoryModal = false">Cancelar</button>
+      </div>
+    </div>
 
-        <div class="item-container">
-            <label for="name">Nome do produto:</label>
-            <input v-model="name" v-bind:class="{ 'is-invalid': errors.name }" type="text" id="name"> 
-            <span v-if="errors.name" class="error">{{ errors.name[0] }}</span>
-        </div>
-        <div class="item-container">
-          imagem do produto
-          <label for="image" class="image-label">
-              <img v-if="image" :src="image" alt="Imagem do produto" />
-              <img v-else src="https://via.placeholder.com/100" alt="Imagem do produto" />
-              <input  v-bind:class="{ 'is-invalid': errors.image }" type="file" id="image" accept="image/*" @change="onFileChange">
-          </label> 
-          <span v-if="errors.image" class="error">{{ errors.image[0] }}</span>
-        </div>
-        <div class="item-container category-container">
+    <div class="item-container">
+      <label for="name">Nome do produto:</label>
+      <input v-model="name" v-bind:class="{ 'is-invalid': errors.name }" type="text" id="name" placeholder="Ex: Cerveja"
+      >
+      <span v-if="errors.name" class="error">{{ errors.name[0] }}</span>
+    </div>
 
-            <label for="category">Categoria:</label>
-            <select v-model="category" v-bind:class="{ 'is-invalid': errors.category }" type="text" id="category">
-            <option v-for="category in categories" :key="category.id" :value="category">{{category.name}}</option>
-            </select>
-            <button @click.prevent="showAddCategoryModal = true">Criar</button>
-            <span v-if="errors.category" class="error">{{ errors.category[0] }}</span>
-        </div>
-        <div class="item-container unit-container">
+    <div class="item-container image-link">
+      <label for="image" class="image-label"> imagem </label>
+      <input v-model="hasImage" type="checkbox" id="hasimage">
+      <input v-model="image" v-bind:class="{ 'is-invalid': errors.image }" type="text" id="image" placeholder="Link da imagem">
+      <span v-if="errors.image" class="error">{{ errors.image[0] }}</span>
+    </div>
+    <div class="item-container category-container">
 
-          <label for="unit">Unidade:</label> 
+      <label for="category">Categoria:</label>
+      <select v-model="category" v-bind:class="{ 'is-invalid': errors.category }" type="text" id="category">
+        <option v-for="category in categories" :key="category.id" :value="category">{{ category.name }}</option>
+      </select>
+      <button @click.prevent="showAddCategoryModal = true">Criar</button>
+      <span v-if="errors.category" class="error">{{ errors.category[0] }}</span>
+    </div>
+    <div class="item-container unit-container">
+
+      <label for="unit">Unidade:</label>
       <select v-model="selectedUnit" v-bind:class="{ 'is-invalid': errors.unit }" id="unit">
-        <option v-for="unit in units" :key="unit.id" :value="unit">{{unit.abbreviation}}</option>
+        <option v-for="unit in units" :key="unit.id" :value="unit">{{ unit.abbreviation }}</option>
       </select>
       <button @click.prevent="showAddUnitModal = true">Criar</button>
       <span v-if="errors.unit" class="error">{{ errors.unit[0] }}</span>
-        </div>
-        <div class="item-container">
+    </div>
+    <div class="item-container">
 
-            <label for="description">Descrição:</label> 
-            <textarea class="descriptionbox" v-model="description" v-bind:class="{ 'is-invalid': errors.description }" type="text" id="description" maxlength="1000"
-            ></textarea> 
-            <span v-if="errors.description" class="error">{{ errors.description[0] }}</span>
-        </div>
-        <div class="item-container">
+      <label for="description">Descrição:</label>
+      <textarea class="descriptionbox" v-model="description" v-bind:class="{ 'is-invalid': errors.description }"
+        type="text" id="description" maxlength="1000"></textarea>
+      <span v-if="errors.description" class="error">{{ errors.description[0] }}</span>
+    </div>
+    <div class="item-container">
 
-            <label for="price">Preço:</label> 
-            <input v-model="price" v-bind:class="{ 'is-invalid': errors.price }" type="number" id="price" min="0"> 
-            <span v-if="errors.price" class="error">{{ errors.price[0] }}</span>
-        </div>
-        <div class="item-container">
+      <label for="price">Preço:</label>
+      <input v-model="price" v-bind:class="{ 'is-invalid': errors.price }" type="number" id="price" min="0">
+      <span v-if="errors.price" class="error">{{ errors.price[0] }}</span>
+    </div>
+    <div class="item-container">
 
-            <label for="featured">Em destaque</label> 
-            <input v-model="featured" v-bind:class="{ 'is-invalid': errors.featured }" type="checkbox" class ="featured"
-                id="featured"> 
-            <span v-if="errors.featured" class="error">{{ errors.featured[0] }}</span>
-        </div>
-        <div class="item-container">
+      <label for="featured">Em destaque</label>
+      <input v-model="featured" v-bind:class="{ 'is-invalid': errors.featured }" type="checkbox" class="featured"
+        id="featured">
+      <span v-if="errors.featured" class="error">{{ errors.featured[0] }}</span>
+    </div>
+    <div class="item-container">
 
-            <label for="stocked">Em estoque</label> 
-            <input v-model="stocked" v-bind:class="{ 'is-invalid': errors.stocked }" type="number" min="0"
-                id="stocked" class="stocked"> 
-            <span v-if="errors.stocked" class="error">{{ errors.stocked[0] }}</span>
-        </div>
-        <div class="button-container">
-            <button @click.prevent="saveProduct">Salvar</button>
-            <button @click.prevent="cancel">Cancelar</button>
-        </div>
+      <label for="stocked">Em estoque</label>
+      <input v-model="stocked" v-bind:class="{ 'is-invalid': errors.stocked }" type="number" min="0" id="stocked"
+        class="stocked">
+      <span v-if="errors.stocked" class="error">{{ errors.stocked[0] }}</span>
+    </div>
+    <div class="button-container">
+      <button @click.prevent="saveProduct">Salvar</button>
+      <button @click.prevent="cancel">Cancelar</button>
+    </div>
 
-    </form>
+  </form>
 
 
-        
+
 </template>
 
 
-<style scoped>  
+<style scoped>
 
-
-input[type="file"] {
-    display: none;
-}
-
-.image-label {
-    cursor: pointer;
-    border: 1px solid #ccc;
-    display: inline-block;
-    cursor: pointer;
-    transition: all 0.5s ease-in-out;
-}
-
-.image-label img {
-    width: 100px;
-    height: 100px;
-    object-fit: cover;
-}
-
-.image-label:hover {
-    background-color: #eee;
-    transform: scale(1.01);
-}
-.featured {
+  input[type="checkbox"] {
     width: 1.5em;
     height: 1.5em;
     border: 1px solid #182d4d;
@@ -126,9 +102,27 @@ input[type="file"] {
     font-size: 1.2em;
     color: #182d4d;
     background-color: #ffffff;
-}
+  }
 
-.category-container button {
+  .imglink {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+ input[type="text"] {
+    width: 10em;
+    height: 2em;
+    border: 1px solid #182d4d;
+    border-radius: 5px;
+    box-sizing: border-box;
+    padding: 0.5em;
+    font-family: 'Roboto', sans-serif;
+    font-size: 1.2em;
+    color: #182d4d;
+    background-color: #ffffff;
+  }	
+  .category-container button {
     width: 6em;
     height: 2em;
     border: 1px solid #182d4d;
@@ -139,8 +133,9 @@ input[type="file"] {
     font-size: 1.2em;
     color: #182d4d;
     background-color: #ffffff;
-}
-.unit-container button {
+  }
+
+  .unit-container button {
     width: 6em;
     height: 2em;
     border: 1px solid #182d4d;
@@ -151,9 +146,9 @@ input[type="file"] {
     font-size: 1.2em;
     color: #182d4d;
     background-color: #ffffff;
-}
+  }
 
-select {
+  select {
     width: 100%;
     height: 2em;
     border: 1px solid #182d4d;
@@ -163,9 +158,9 @@ select {
     font-family: 'Roboto', sans-serif;
     font-size: 1.2em;
     color: #182d4d;
-}
+  }
 
-.descriptionbox {
+  .descriptionbox {
     width: 100%;
     height: 5em;
     border-radius: 5px;
@@ -178,21 +173,22 @@ select {
     border: 1px solid #182d4d;
     white-space: pre-wrap;
     resize: none;
-}
-label {
+  }
+
+  label {
     font-family: 'Roboto', sans-serif;
     font-size: 1.2em;
     color: #182d4d;
-}
+  }
 
-.modal-overlay {
+  .modal-overlay {
     position: absolute;
     z-index: 1;
     top: 25%;
     left: 50%;
-}
+  }
 
-.modal-content {
+  .modal-content {
     position: absolute;
     background-color: #ffffff;
     padding: 4em;
@@ -200,9 +196,9 @@ label {
     box-sizing: border-box;
     border: 2px solid #182d4d;
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
-}
+  }
 
-.form-container {
+  .form-container {
     font-family: 'Roboto', sans-serif;
     display: grid;
     grid-template-columns: 0fr 1fr;
@@ -222,9 +218,9 @@ label {
     box-sizing: border-box;
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
     gap: 1.5em;
-}
+  }
 
-.button-container {
+  .button-container {
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -233,41 +229,41 @@ label {
     bottom: 1em;
     left: 8rem;
     align-items: center;
-}
+  }
 
-.item-container {
+  .item-container {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     width: 50%;
-}
+  }
 
-.img-container {
+  .img-container {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
-}
+  }
 
 
-.imglink {
+  .imglink {
     display: flex;
     flex-direction: column;
     gap: 0em;
     width: 50%;
     padding-left: 3em;
-}
+  }
 
-.imgcheck {
+  .imgcheck {
     display: flex;
     flex-direction: column;
     gap: 0em;
     padding-right: 4em;
-}
+  }
 
 
-input {
+  input {
     align-self: center;
     width: 100%;
     height: 1em;
@@ -276,19 +272,19 @@ input {
     border: 2px solid #182d4d;
     border-radius: 4px;
     box-sizing: border-box;
-}
+  }
 
 
-.button-container {
+  .button-container {
     display: flex;
     flex-direction: row;
     justify-content: center;
     gap: 6em;
     align-items: center;
-}
+  }
 
 
-button {
+  button {
     background-color: #182d4d;
     border: 2px solid #ffffff;
     color: white;
@@ -301,37 +297,37 @@ button {
     cursor: pointer;
     border-radius: 4px;
     transition: 0.5s ease-in-out;
-}
+  }
 
-button:hover {
+  button:hover {
     background-color: #ffffff;
     color: #182d4d;
     border: 2px solid #182d4d;
     transition: 0.5s ease-in-out;
     transform: scale(1.1);
-}
+  }
 
-button:nth-child(2) {
+  button:nth-child(2) {
     background-color: #ffffff;
     color: #182d4d;
     border: 2px solid #182d4d;
-}
+  }
 
-button:nth-child(2):hover {
+  button:nth-child(2):hover {
     background-color: #182d4d;
     color: #ffffff;
     border: 2px solid #ffffff;
     transition: 0.5s ease-in-out;
     transform: scale(1.15);
-}
+  }
 
-@media screen and (max-width: 800px) {
+  @media screen and (max-width: 800px) {
     .form-container {
-        width: 100%;
-        height: 100%;
-        margin-left: 0%;
+      width: 100%;
+      height: 100%;
+      margin-left: 0%;
     }
-}
+  }
 </style>
 
 <script>
@@ -341,6 +337,7 @@ import axios from 'axios'
 export default {
   data() {
     return {
+      hasImage: false,
       selectedUnit: null,
       units: [],
       categories: [],
@@ -365,16 +362,6 @@ export default {
     this.fetchCategories();
   },
   methods: {
-    onFileChange(e) {
-      let input = e.target;
-      if(input.files && input.files[0]) {
-        let reader = new FileReader();
-        reader.onload = (e) => {
-          this.image = e.target.result;
-        }
-        reader.readAsDataURL(input.files[0]);
-      }
-    },
     fetchUnits() {
       axios
         .get('http://localhost:3000/api/v1/measurement_units')
@@ -433,6 +420,9 @@ export default {
       }
       if (this.name.length > 25 || this.name.length < 3) {
         this.errors.name = ['Nome do produto deve ter entre 3 e 25 caracteres']
+      }
+      if (!this.name.match(/^[a-zA-Z0-9 ]*$/)) {
+        this.errors.name = ['Nome do produto deve conter apenas letras e números']
       }
       /*if (!this.image) {
         this.errors.image = ['imagem do produto não pode ficar em branco']
