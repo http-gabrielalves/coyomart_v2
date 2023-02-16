@@ -6,16 +6,20 @@
         <h3>Adicionar unidade de medida</h3>
         <input type="text" v-model="newUnitName" placeholder="Nome ex: Quilo" maxlength="25" />
         <input type="text" v-model="newUnitAbbreviation" placeholder="Abreviação ex: KG" maxlength="5" />
+        <br />
+        <span v-if="errors.unit" class="error">{{ errors.unit }}</span>
         <button @click.prevent="addUnit">Adicionar</button>
-        <button @click.prevent="showAddUnitModal = false">Cancelar</button>
+        <button @click.prevent="showAddUnitModal = false, errors.unit = ''">Cancelar</button>
       </div>
     </div>
     <div class="modal-overlay" v-if="showAddCategoryModal">
       <div class="modal-content">
         <h3>Criar Categoria</h3>
-        <input type="text" v-model="newCategoryName" placeholder="Nome ex: Praia" maxlength="25" />
+        <input type="text" v-model="newCategoryName" placeWholder="Nome ex: Praia" maxlength="25" />
+        <br />
+        <span v-if="errors.category" class="error">{{ errors.category }}</span>
         <button @click.prevent="addCategory">Adicionar</button>
-        <button @click.prevent="showAddCategoryModal = false">Cancelar</button>
+        <button @click.prevent="showAddCategoryModal = false, errors.category = ''">Cancelar</button>
       </div>
     </div>
 
@@ -39,7 +43,7 @@
         <option v-for="category in categories" :key="category.id" :value="category">{{ category.name }}</option>
       </select>
       <button @click.prevent="showAddCategoryModal = true">Criar</button>
-      <span v-if="errors.category" class="error">{{ errors.category[0] }}</span>
+      <span v-if="errors.category" class="error">{{ errors.category }}</span>
     </div>
     <div class="item-container unit-container">
 
@@ -337,6 +341,7 @@ import axios from 'axios'
 export default {
   data() {
     return {
+      newUnitName: '',
       hasImage: false,
       selectedUnit: null,
       units: [],
@@ -344,6 +349,7 @@ export default {
       showAddUnitModal: false,
       showAddCategoryModal: false,
       newUnitAbbreviation: '',
+      newCategoryName: '',
       name: '',
       image: '',
       description: '',
@@ -383,6 +389,10 @@ export default {
         });
     },
     addCategory() {
+      if (this.newCategoryName.length < 1) {
+        this.errors.category = 'O nome da categoria deve ter pelo menos 1 caractere';
+        return;
+      }
       axios
         .post('http://localhost:3000/api/v1/categories', {
           name: this.newCategoryName
@@ -397,19 +407,35 @@ export default {
         });
     },
     addUnit() {
-      axios
-        .post('http://localhost:3000/api/v1/measurement_units', {
-          abbreviation: this.newUnitAbbreviation,
-          name: this.newUnitName
-        })
-        .then(response => {
-          this.units.push(response.data);
-          this.selectedUnit = response.data;
-          this.showAddUnitModal = false;
-        })
-        .catch(error => {
-          console.error(error);
-        });
+      if (this.newUnitAbbreviation.length > 3 || this.newUnitAbbreviation.length < 1) {
+        this.errors.unit = 'A abreviação da unidade deve ter entre 1 e 3 caracteres';
+        return;
+      }
+      if (!this.newUnitAbbreviation.match(/^[a-zA-Z]+$/)) {
+        this.errors.unit = 'A abreviação da unidade deve conter apenas letras';
+        return;
+      }
+      if (this.newUnitName.length > 25 || this.newUnitName.length < 3) {
+        this.errors.unit = 'O nome da unidade deve ter entre 3 e 25 caracteres';
+        return;
+      }
+      if (!this.newUnitName.match(/^[a-zA-Z]+$/)) {
+        this.errors.unit = 'O nome da unidade deve conter apenas letras';
+        return;
+      }
+        axios
+          .post('http://localhost:3000/api/v1/measurement_units', {
+            abbreviation: this.newUnitAbbreviation,
+            name: this.newUnitName
+          })
+          .then(response => {
+            this.units.push(response.data);
+            this.selectedUnit = response.data;
+            this.showAddUnitModal = false;
+          })
+          .catch(error => {
+            console.error(error);
+          });
     },
     saveProduct() {
       this.loading = true;
@@ -424,9 +450,27 @@ export default {
       if (!this.name.match(/^[a-zA-Z0-9 ]*$/)) {
         this.errors.name = ['Nome do produto deve conter apenas letras e números']
       }
+      if (this.hasImage && !this.image) {
+        this.errors.image = ['imagem do produto não pode ficar em branco']
+      }
+      if (this.newUnitAbbreviation.length > 5 || this.newUnitAbbreviation.length < 1) {
+        this.errors.unit = ['Abreviação da unidade de medida deve ter entre 1 e 5 caracteres']
+      }
+      if (!this.newUnitAbbreviation.match(/^[a-zA-Z0-9 ]*$/)) {
+        this.errors.unit = ['Abreviação da unidade de medida deve conter apenas letras e números']
+      }
+      if (this.newUnitName.length > 25 || this.newUnitName.length < 3) {
+        this.errors.unit = ['Nome da unidade de medida deve ter entre 3 e 25 caracteres']
+      }
+      if (!this.newUnitName.match(/^[a-zA-Z0-9 ]*$/)) {
+        this.errors.unit = ['Nome da unidade de medida deve conter apenas letras e números']
+      }
       /*if (!this.image) {
         this.errors.image = ['imagem do produto não pode ficar em branco']
       }*/
+      if (this.description.length > 500) {
+        this.errors.description = ['Descrição do produto deve ter no maximo 500 caracteres']
+      }
       if (!this.description) {
         this.errors.description = ['Descrição do produto não pode ficar em branco']
       }
